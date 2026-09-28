@@ -1,0 +1,6 @@
+{
+  "name": "Belajar Membilang 1-10",
+  "description": "Aplikasi pembelajaran interaktif membilang angka 1 sampai 10 untuk anak TK A usia 4-6 tahun.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
