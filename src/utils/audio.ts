@@ -1,9 +1,11 @@
-// Enhanced kid-friendly Audio & Speech Engine with automatic AudioContext unlocking and TTS fallback
+// Enhanced kid-friendly Audio & Child-Voice Engine with bilingual support (ID & EN)
+import { Language } from '../types';
 
 class SoundEngine {
   private ctx: AudioContext | null = null;
   public soundEnabled: boolean = true;
   public speechEnabled: boolean = true;
+  public currentLanguage: Language = 'id';
   private voices: SpeechSynthesisVoice[] = [];
   private isUnlocked: boolean = false;
 
@@ -35,6 +37,10 @@ class SoundEngine {
     }
   }
 
+  public setLanguage(lang: Language) {
+    this.currentLanguage = lang;
+  }
+
   private loadVoices() {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     try {
@@ -56,9 +62,12 @@ class SoundEngine {
       }
 
       if (this.ctx && this.ctx.state === 'suspended') {
-        this.ctx.resume().then(() => {
-          this.isUnlocked = true;
-        }).catch(() => {});
+        this.ctx
+          .resume()
+          .then(() => {
+            this.isUnlocked = true;
+          })
+          .catch(() => {});
       } else if (this.ctx && this.ctx.state === 'running') {
         this.isUnlocked = true;
       }
@@ -93,13 +102,13 @@ class SoundEngine {
     261.63, // 1: C4
     293.66, // 2: D4
     329.63, // 3: E4
-    392.00, // 4: G4
-    440.00, // 5: A4
+    392.0, // 4: G4
+    440.0, // 5: A4
     523.25, // 6: C5
     587.33, // 7: D5
     659.25, // 8: E5
     783.99, // 9: G5
-    1046.50, // 10: C6
+    1046.5, // 10: C6
   ];
 
   public playNumberTone(num: number) {
@@ -111,7 +120,7 @@ class SoundEngine {
       const clamped = Math.max(1, Math.min(10, num));
       const freq = this.numberPitches[clamped - 1] || 440;
 
-      // Rich dual oscillator (Triangle + Sine for soft marimba sound)
+      // Rich dual oscillator (Triangle + Sine for cheerful marimba sound)
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -120,7 +129,7 @@ class SoundEngine {
       osc1.frequency.setValueAtTime(freq, ctx.currentTime);
 
       osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(freq * 2, ctx.currentTime); // 1 octave overtone
+      osc2.frequency.setValueAtTime(freq * 2, ctx.currentTime);
 
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.02);
@@ -172,7 +181,7 @@ class SoundEngine {
     if (!ctx) return;
 
     try {
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 (Major fanfare)
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
       notes.forEach((freq, idx) => {
         if (!ctx) return;
         const osc = ctx.createOscillator();
@@ -202,7 +211,6 @@ class SoundEngine {
     if (!ctx) return;
 
     try {
-      // Gentle encouraging two-tone bounce
       const notes = [440.0, 349.23]; // A4 to F4
       notes.forEach((freq, idx) => {
         if (!ctx) return;
@@ -227,69 +235,56 @@ class SoundEngine {
     }
   }
 
-  public playChime() {
-    if (!this.soundEnabled) return;
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    try {
-      const notes = [587.33, 880.0]; // D5, A5
-      notes.forEach((freq, idx) => {
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
-
-        gain.gain.setValueAtTime(0, ctx.currentTime + idx * 0.12);
-        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + idx * 0.12 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.4);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(ctx.currentTime + idx * 0.12);
-        osc.stop(ctx.currentTime + idx * 0.12 + 0.4);
-      });
-    } catch {
-      // Fallback
-    }
-  }
-
-  public speak(text: string) {
+  /**
+   * Speak using child-like vocal modulation:
+   * Higher pitch (1.45) creates a cheerful child's vocal tract formant.
+   * Moderate pace (0.90) ensures preschoolers can understand easily.
+   */
+  public speak(text: string, lang?: Language) {
     if (!this.speechEnabled) return;
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
+    const selectedLang = lang || this.currentLanguage;
+
     try {
-      // Make sure speech synthesis is resumed
       if (window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
       }
-      window.speechSynthesis.cancel(); // Stop prior speech to avoid queue pile-up
+      window.speechSynthesis.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'id-ID';
-      utterance.rate = 0.92; // Clear, friendly pace for kids
-      utterance.pitch = 1.15; // Slightly cheerful, engaging pitch
+      const utterance = new SpeechSynthesisUtterance(text.toLowerCase());
+      utterance.lang = selectedLang === 'id' ? 'id-ID' : 'en-US';
+      // Child-like voice parameters:
+      utterance.rate = 0.90; // Gentle, clear preschool pacing
+      utterance.pitch = 1.48; // Higher pitch simulating bright child voice
       utterance.volume = 1.0;
 
-      // Select Indonesian voice if available
       if (this.voices.length === 0) {
         this.loadVoices();
       }
-      const idVoice = this.voices.find(
-        (v) =>
-          v.lang === 'id-ID' ||
-          v.lang.startsWith('id') ||
-          v.lang.startsWith('ID') ||
-          v.name.toLowerCase().includes('indonesia')
-      );
-      if (idVoice) {
-        utterance.voice = idVoice;
+
+      // Voice selection: find matching language voice with high natural quality
+      if (selectedLang === 'id') {
+        const idVoice = this.voices.find(
+          (v) =>
+            v.lang.toLowerCase().includes('id') ||
+            v.name.toLowerCase().includes('indonesia')
+        );
+        if (idVoice) utterance.voice = idVoice;
+      } else {
+        const enVoice = this.voices.find(
+          (v) =>
+            (v.lang.toLowerCase().includes('en-us') ||
+              v.lang.toLowerCase().includes('en-gb') ||
+              v.lang.toLowerCase().startsWith('en')) &&
+            (v.name.toLowerCase().includes('female') ||
+              v.name.toLowerCase().includes('child') ||
+              v.name.toLowerCase().includes('natural') ||
+              v.name.toLowerCase().includes('samantha'))
+        ) || this.voices.find((v) => v.lang.toLowerCase().startsWith('en'));
+        if (enVoice) utterance.voice = enVoice;
       }
 
-      // Small delay before speak to let cancel() settle cleanly
       setTimeout(() => {
         try {
           if (window.speechSynthesis.paused) {
@@ -301,20 +296,26 @@ class SoundEngine {
         }
       }, 30);
     } catch {
-      // Graceful fallback
+      // Fallback
     }
   }
 
-  public speakNumber(num: number, word: string) {
+  public speakNumber(num: number, word: string, lang?: Language) {
     this.playNumberTone(num);
-    this.speak(`${num}. ${word}`);
+    const selectedLang = lang || this.currentLanguage;
+    this.speak(`${num}. ${word}`, selectedLang);
   }
 
-  public testAudio() {
+  public testAudio(lang?: Language) {
     this.unlockAudio();
     this.playSuccess();
+    const selectedLang = lang || this.currentLanguage;
     setTimeout(() => {
-      this.speak('Halo! Suara sudah aktif dan siap digunakan!');
+      if (selectedLang === 'id') {
+        this.speak('halo teman-teman! suara anak sudah aktif dan siap berhitung bersama!');
+      } else {
+        this.speak('hello friends! kid voice is ready to count together!');
+      }
     }, 400);
   }
 }

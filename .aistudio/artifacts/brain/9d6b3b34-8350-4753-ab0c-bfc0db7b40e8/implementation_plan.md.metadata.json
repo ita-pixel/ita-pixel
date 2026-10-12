@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana revisi komprehensif untuk aplikasi belajar membilang angka 1–10:\n- Mengubah nada suara menjadi suara anak (child-like voice pitch & speech rate)\n- Menambahkan tombol pilihan dua bahasa (Bahasa Indonesia & Bahasa Inggris)\n- Menambahkan pemilih kelompok usia (4–5 tahun dengan font judul & instruksi warna merah, 5–6 tahun dengan font warna hitam)\n- Menerapkan huruf kecil (lowercase) secara konsisten di seluruh teks aplikasi",
+  "updatedAt":  "2026-10-12T09:18:34.728067197Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}

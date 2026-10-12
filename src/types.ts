@@ -1,9 +1,15 @@
+export type Language = 'id' | 'en';
+export type AgeGroup = '4-5' | '5-6';
+
 export interface NumberItem {
   num: number;
-  word: string;
+  wordId: string;
+  wordEn: string;
   emoji: string;
-  nameIndo: string;
-  pluralIndo: string;
+  nameId: string;
+  nameEn: string;
+  pluralId: string;
+  pluralEn: string;
   color: string;
   bgGradient: string;
   borderCol: string;
@@ -17,10 +23,13 @@ export interface NumberItem {
 export const NUMBER_DATA: NumberItem[] = [
   {
     num: 1,
-    word: 'Satu',
+    wordId: 'satu',
+    wordEn: 'one',
     emoji: '🍎',
-    nameIndo: 'Apel Merah',
-    pluralIndo: '1 Apel',
+    nameId: 'apel merah',
+    nameEn: 'red apple',
+    pluralId: '1 apel',
+    pluralEn: '1 apple',
     color: 'bg-[#4FC3F7]',
     bgGradient: 'from-[#4FC3F7] to-[#0288D1]',
     borderCol: 'border-[#0288D1]',
@@ -32,10 +41,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 2,
-    word: 'Dua',
+    wordId: 'dua',
+    wordEn: 'two',
     emoji: '🦆',
-    nameIndo: 'Bebek Lucu',
-    pluralIndo: '2 Bebek',
+    nameId: 'bebek lucu',
+    nameEn: 'cute duck',
+    pluralId: '2 bebek',
+    pluralEn: '2 ducks',
     color: 'bg-[#9575CD]',
     bgGradient: 'from-[#9575CD] to-[#512DA8]',
     borderCol: 'border-[#512DA8]',
@@ -47,10 +59,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 3,
-    word: 'Tiga',
+    wordId: 'tiga',
+    wordEn: 'three',
     emoji: '⭐',
-    nameIndo: 'Bintang Terang',
-    pluralIndo: '3 Bintang',
+    nameId: 'bintang terang',
+    nameEn: 'bright star',
+    pluralId: '3 bintang',
+    pluralEn: '3 stars',
     color: 'bg-[#FF8A65]',
     bgGradient: 'from-[#FF8A65] to-[#E64A19]',
     borderCol: 'border-[#E64A19]',
@@ -62,10 +77,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 4,
-    word: 'Empat',
+    wordId: 'empat',
+    wordEn: 'four',
     emoji: '🎈',
-    nameIndo: 'Balon Ceria',
-    pluralIndo: '4 Balon',
+    nameId: 'balon ceria',
+    nameEn: 'cheerful balloon',
+    pluralId: '4 balon',
+    pluralEn: '4 balloons',
     color: 'bg-[#DCE775]',
     bgGradient: 'from-[#DCE775] to-[#AFB42B]',
     borderCol: 'border-[#AFB42B]',
@@ -77,10 +95,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 5,
-    word: 'Lima',
+    wordId: 'lima',
+    wordEn: 'five',
     emoji: '🌸',
-    nameIndo: 'Bunga Indah',
-    pluralIndo: '5 Bunga',
+    nameId: 'bunga indah',
+    nameEn: 'pretty flower',
+    pluralId: '5 bunga',
+    pluralEn: '5 flowers',
     color: 'bg-[#F06292]',
     bgGradient: 'from-[#F06292] to-[#C2185B]',
     borderCol: 'border-[#C2185B]',
@@ -92,10 +113,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 6,
-    word: 'Enam',
+    wordId: 'enam',
+    wordEn: 'six',
     emoji: '🐟',
-    nameIndo: 'Ikan Berenang',
-    pluralIndo: '6 Ikan',
+    nameId: 'ikan berenang',
+    nameEn: 'swimming fish',
+    pluralId: '6 ikan',
+    pluralEn: '6 fishes',
     color: 'bg-[#4DB6AC]',
     bgGradient: 'from-[#4DB6AC] to-[#00796B]',
     borderCol: 'border-[#00796B]',
@@ -107,10 +131,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 7,
-    word: 'Tujuh',
+    wordId: 'tujuh',
+    wordEn: 'seven',
     emoji: '🚗',
-    nameIndo: 'Mobil Cepat',
-    pluralIndo: '7 Mobil',
+    nameId: 'mobil cepat',
+    nameEn: 'speedy car',
+    pluralId: '7 mobil',
+    pluralEn: '7 cars',
     color: 'bg-[#FF7043]',
     bgGradient: 'from-[#FF7043] to-[#D84315]',
     borderCol: 'border-[#D84315]',
@@ -122,10 +149,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 8,
-    word: 'Delapan',
+    wordId: 'delapan',
+    wordEn: 'eight',
     emoji: '🐱',
-    nameIndo: 'Kucing Manis',
-    pluralIndo: '8 Kucing',
+    nameId: 'kucing manis',
+    nameEn: 'sweet kitten',
+    pluralId: '8 kucing',
+    pluralEn: '8 kittens',
     color: 'bg-[#BA68C8]',
     bgGradient: 'from-[#BA68C8] to-[#7B1FA2]',
     borderCol: 'border-[#7B1FA2]',
@@ -137,10 +167,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 9,
-    word: 'Sembilan',
+    wordId: 'sembilan',
+    wordEn: 'nine',
     emoji: '🦋',
-    nameIndo: 'Kupu-kupu Cantik',
-    pluralIndo: '9 Kupu-kupu',
+    nameId: 'kupu-kupu cantik',
+    nameEn: 'butterfly',
+    pluralId: '9 kupu-kupu',
+    pluralEn: '9 butterflies',
     color: 'bg-[#4DD0E1]',
     bgGradient: 'from-[#4DD0E1] to-[#0097A7]',
     borderCol: 'border-[#0097A7]',
@@ -152,10 +185,13 @@ export const NUMBER_DATA: NumberItem[] = [
   },
   {
     num: 10,
-    word: 'Sepuluh',
+    wordId: 'sepuluh',
+    wordEn: 'ten',
     emoji: '🧁',
-    nameIndo: 'Kue Enak',
-    pluralIndo: '10 Kue',
+    nameId: 'kue enak',
+    nameEn: 'yummy cupcake',
+    pluralId: '10 kue',
+    pluralEn: '10 cupcakes',
     color: 'bg-[#FFB74D]',
     bgGradient: 'from-[#FFB74D] to-[#F57C00]',
     borderCol: 'border-[#F57C00]',

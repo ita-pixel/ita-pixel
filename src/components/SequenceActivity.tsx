@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
-import { ActivityResult } from '../types';
+import { ActivityResult, Language, AgeGroup } from '../types';
 import { sound } from '../utils/audio';
 import { triggerConfetti } from '../utils/confetti';
+import { t, getAgeTitleColor, getAgeInstructionColor } from '../utils/translations';
 
 interface SequenceActivityProps {
   onComplete: (result: ActivityResult) => void;
+  language: Language;
+  ageGroup: AgeGroup;
 }
 
 interface SequenceQuestion {
@@ -16,13 +19,21 @@ interface SequenceQuestion {
   options: number[];
 }
 
-export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }) => {
+export const SequenceActivity: React.FC<SequenceActivityProps> = ({
+  onComplete,
+  language,
+  ageGroup,
+}) => {
   const TOTAL_QUESTIONS = 5;
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [currentQuestion, setCurrentQuestion] = useState<SequenceQuestion | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null);
   const [score, setScore] = useState<number>(0);
+
+  const text = t[language];
+  const titleColor = getAgeTitleColor(ageGroup);
+  const instructionColor = getAgeInstructionColor(ageGroup);
 
   const generateQuestion = (qIndex: number): SequenceQuestion => {
     const startNum = Math.floor(Math.random() * 7) + 1; // 1 to 7 so 4 numbers stay <= 10
@@ -66,12 +77,20 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
       setFeedback('correct');
       setScore((prev) => prev + 1);
       sound.playSuccess();
-      sound.speak(`Hebat! Angka ${option} tepat sekali!`);
+      const praise =
+        language === 'id'
+          ? `hebat! angka ${option} tepat sekali!`
+          : `great job! number ${option} is right!`;
+      sound.speak(praise, language);
       triggerConfetti();
     } else {
       setFeedback('incorrect');
       sound.playTryAgain();
-      sound.speak('Coba urutkan lagi ya!');
+      const tryMsg =
+        language === 'id'
+          ? 'coba urutkan lagi ya!'
+          : 'let\'s order the train cars again!';
+      sound.speak(tryMsg, language);
     }
   };
 
@@ -79,7 +98,7 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
     if (questionIndex + 1 >= TOTAL_QUESTIONS) {
       onComplete({
         activity: 'sequence',
-        title: 'Urutkan Angka',
+        title: language === 'id' ? 'urutkan angka' : 'order numbers',
         totalQuestions: TOTAL_QUESTIONS,
         correctAnswers: score + (feedback === 'correct' ? 1 : 0),
       });
@@ -98,16 +117,18 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
   if (!currentQuestion) return null;
 
   return (
-    <div className="w-full max-w-5xl mx-auto py-4 px-4 sm:px-8">
+    <div className="w-full max-w-5xl mx-auto py-3 px-4 sm:px-8">
       {/* Progress */}
-      <div className="flex items-center justify-between gap-4 mb-5">
+      <div className="flex items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-base sm:text-lg font-black text-[#5D4037]">
-            SOAL {questionIndex + 1} DARI {TOTAL_QUESTIONS}
+          <span className={`text-sm sm:text-base font-black lowercase ${instructionColor}`}>
+            {language === 'id'
+              ? `soal ${questionIndex + 1} dari ${TOTAL_QUESTIONS}`
+              : `question ${questionIndex + 1} of ${TOTAL_QUESTIONS}`}
           </span>
         </div>
 
-        {/* Tactile Progress Indicator Circles */}
+        {/* Progress circles */}
         <div className="flex items-center gap-2">
           {Array.from({ length: TOTAL_QUESTIONS }).map((_, idx) => {
             const isCompleted = idx < questionIndex || (idx === questionIndex && feedback === 'correct');
@@ -115,11 +136,11 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
             return (
               <div
                 key={idx}
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shadow-xs transition-all ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-xs sm:text-sm shadow-xs transition-all ${
                   isCompleted
-                    ? 'bg-[#81C784] border-2 border-white text-white shadow-sm'
+                    ? 'bg-[#81C784] border-2 border-white text-white shadow-xs'
                     : isCurrent
-                    ? 'bg-white border-2 border-[#FF7043] text-[#FF7043] scale-110'
+                    ? 'bg-white border-2 border-[#FF7043] text-[#FF7043] scale-105'
                     : 'bg-white/60 border-2 border-dashed border-[#FBC02D] text-[#FBC02D]'
                 }`}
               >
@@ -130,29 +151,33 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
         </div>
       </div>
 
-      {/* Main Sequence Card in Vibrant Palette */}
+      {/* Main Sequence Card */}
       <motion.div
         key={questionIndex}
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-[36px] sm:rounded-[44px] border-4 border-[#FFD54F] shadow-xl p-6 sm:p-10"
+        className="bg-white rounded-[32px] sm:rounded-[40px] border-4 border-[#FFD54F] shadow-xl p-5 sm:p-8"
       >
         {/* Instruction */}
-        <div className="text-center mb-6">
-          <div className="inline-block px-5 py-1.5 rounded-full bg-[#FFF9C4] border-2 border-[#FFD54F] text-[#5D4037] font-black text-base sm:text-lg mb-2 shadow-xs">
-            Angka berapa yang hilang di gerbong tanda tanya [ ? ]?
+        <div className="text-center mb-5">
+          <div className={`inline-block px-4 py-1.5 rounded-full bg-[#FFF9C4] border-2 border-[#FFD54F] font-black text-base sm:text-lg mb-1.5 shadow-2xs lowercase ${titleColor}`}>
+            {text.sequenceQuestion}
           </div>
-          <p className="text-xs sm:text-sm font-bold text-[#795548]">
-            Lihat urutan angka dari kiri ke kanan lalu pilih angka yang sesuai
+          <p className={`text-xs sm:text-sm font-bold lowercase ${instructionColor}`}>
+            {language === 'id'
+              ? 'lihat urutan angka dari kiri ke kanan lalu pilih angka yang sesuai'
+              : 'look at the numbers from left to right and pick the missing number'}
           </p>
         </div>
 
         {/* Train Visual Track */}
-        <div className="min-h-[190px] sm:min-h-[220px] p-6 sm:p-8 rounded-[32px] bg-[#FFFBEB] border-4 border-dashed border-[#FFD54F] flex items-center justify-center overflow-x-auto gap-3 sm:gap-5 mb-8">
+        <div className="min-h-[170px] sm:min-h-[200px] p-5 sm:p-7 rounded-[28px] bg-[#FFFBEB] border-4 border-dashed border-[#FFD54F] flex items-center justify-center overflow-x-auto gap-2.5 sm:gap-4 mb-6">
           {/* Locomotive Head */}
-          <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-3xl bg-[#FF7043] border-b-6 border-[#D84315] flex flex-col items-center justify-center text-white shadow-md shrink-0">
+          <div className="w-18 h-22 sm:w-22 sm:h-26 rounded-2xl sm:rounded-3xl bg-[#FF7043] border-b-6 border-[#D84315] flex flex-col items-center justify-center text-white shadow-md shrink-0">
             <span className="text-3xl sm:text-4xl">🚂</span>
-            <span className="text-[11px] font-black uppercase tracking-wider mt-1">LOKO</span>
+            <span className="text-[10px] sm:text-xs font-black lowercase mt-1">
+              {language === 'id' ? 'loko' : 'train'}
+            </span>
           </div>
 
           {/* Wagons */}
@@ -161,10 +186,10 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
             const isAnswerFilled = isMissing && feedback === 'correct';
 
             return (
-              <div key={idx} className="flex items-center gap-2 sm:gap-3 shrink-0">
-                <span className="text-xl font-black text-[#FBC02D]">🔗</span>
+              <div key={idx} className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <span className="text-lg font-black text-[#FBC02D]">🔗</span>
                 <div
-                  className={`w-20 h-24 sm:w-24 sm:h-28 rounded-3xl border-b-6 flex flex-col items-center justify-center shadow-md transition-all ${
+                  className={`w-18 h-22 sm:w-22 sm:h-26 rounded-2xl sm:rounded-3xl border-b-6 flex flex-col items-center justify-center shadow-md transition-all ${
                     isMissing
                       ? isAnswerFilled
                         ? 'bg-[#4CAF50] border-[#2E7D32] text-white scale-105 shadow-xl'
@@ -175,8 +200,8 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
                   <span className="text-3xl sm:text-5xl font-black">
                     {isMissing ? (isAnswerFilled ? currentQuestion.correctAnswer : '?') : num}
                   </span>
-                  <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-80 mt-1">
-                    GERBONG {idx + 1}
+                  <span className="text-[9px] sm:text-[11px] font-black lowercase opacity-85 mt-1">
+                    {language === 'id' ? `gerbong ${idx + 1}` : `car ${idx + 1}`}
                   </span>
                 </div>
               </div>
@@ -185,23 +210,23 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
         </div>
 
         {/* 3 Large 3D Answer Options */}
-        <div className="mb-4">
-          <div className="text-center font-black text-[#5D4037] text-lg mb-4">
-            PILIH ANGKA UNTUK MELENGKAPI GERBONG:
+        <div className="mb-3">
+          <div className={`text-center font-black text-sm sm:text-base mb-3 lowercase ${instructionColor}`}>
+            👇 {language === 'id' ? 'pilih angka untuk melengkapi gerbong:' : 'pick the number to complete the car:'}
           </div>
 
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-lg mx-auto">
+          <div className="grid grid-cols-3 gap-3.5 sm:gap-5 max-w-md mx-auto">
             {currentQuestion.options.map((opt, optIdx) => {
               const isSelected = selectedAnswer === opt;
               const theme = buttonThemes[optIdx % buttonThemes.length];
 
-              let customStyle = `${theme.bg} border-b-6 sm:border-b-8 ${theme.border} ${theme.text}`;
+              let customStyle = `${theme.bg} border-b-6 ${theme.border} ${theme.text}`;
 
               if (isSelected) {
                 if (feedback === 'correct') {
-                  customStyle = 'bg-[#4CAF50] border-b-6 sm:border-b-8 border-[#2E7D32] text-white ring-4 ring-[#81C784] scale-105 shadow-xl';
+                  customStyle = 'bg-[#4CAF50] border-b-6 border-[#2E7D32] text-white ring-4 ring-[#81C784] scale-105 shadow-xl';
                 } else if (feedback === 'incorrect') {
-                  customStyle = 'bg-[#FF8A65] border-b-6 sm:border-b-8 border-[#E64A19] text-white';
+                  customStyle = 'bg-[#FF8A65] border-b-6 border-[#E64A19] text-white';
                 }
               }
 
@@ -211,7 +236,7 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
                   id={`btn-seq-opt-${opt}`}
                   onClick={() => handleOptionClick(opt)}
                   disabled={feedback === 'correct'}
-                  className={`h-20 sm:h-24 rounded-3xl font-black text-5xl sm:text-6xl shadow-md transition-all active:translate-y-1 active:border-b-4 cursor-pointer flex items-center justify-center hover:scale-102 ${customStyle}`}
+                  className={`h-20 sm:h-24 rounded-2xl sm:rounded-3xl font-black text-4xl sm:text-5xl shadow-md transition-all active:translate-y-1 active:border-b-4 cursor-pointer flex items-center justify-center hover:scale-102 ${customStyle}`}
                 >
                   {opt}
                 </button>
@@ -227,13 +252,13 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className={`mt-6 p-5 sm:p-6 rounded-[28px] border-3 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left ${
+              className={`mt-5 p-4 sm:p-5 rounded-[24px] border-3 flex flex-col sm:flex-row items-center justify-between gap-3.5 text-center sm:text-left ${
                 feedback === 'correct'
                   ? 'bg-[#E8F5E9] border-[#81C784] text-[#1B5E20]'
                   : 'bg-[#FFF8E1] border-[#FFD54F] text-[#5D4037]'
               }`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3.5">
                 {feedback === 'correct' ? (
                   <div className="w-12 h-12 rounded-2xl bg-[#4CAF50] text-white flex items-center justify-center shadow-xs">
                     <CheckCircle2 className="w-7 h-7 stroke-[3]" />
@@ -244,13 +269,19 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
                   </div>
                 )}
                 <div>
-                  <div className="font-black text-xl">
-                    {feedback === 'correct' ? 'KERETA SIAP BERJALAN! 🚂' : 'YUK COBA LAGI! 😊'}
-                  </div>
-                  <div className="text-sm font-bold opacity-90">
+                  <div className="font-black text-lg sm:text-xl lowercase">
                     {feedback === 'correct'
-                      ? `Urutan angkanya sekarang sudah lengkap dan benar!`
-                      : 'Coba baca urutan angkanya dari depan pelan-pelan ya!'}
+                      ? (language === 'id' ? 'kereta siap berjalan! 🚂' : 'the train is ready to go! 🚂')
+                      : (language === 'id' ? 'yuk coba lagi! 😊' : 'let\'s try again! 😊')}
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold opacity-90 lowercase">
+                    {feedback === 'correct'
+                      ? (language === 'id'
+                        ? 'urutan angkanya sekarang sudah lengkap dan benar!'
+                        : 'the number line is now complete and correct!')
+                      : (language === 'id'
+                        ? 'coba baca urutan angkanya dari depan pelan-pelan ya!'
+                        : 'try reading the numbers from the front slowly!')}
                   </div>
                 </div>
               </div>
@@ -259,10 +290,10 @@ export const SequenceActivity: React.FC<SequenceActivityProps> = ({ onComplete }
                 <button
                   id="btn-seq-next-q"
                   onClick={handleNextQuestion}
-                  className="h-14 px-10 rounded-2xl bg-[#4CAF50] border-b-4 border-[#2E7D32] active:translate-y-1 active:border-b-0 text-white font-black text-lg shadow-md flex items-center gap-2 cursor-pointer transition-transform shrink-0 hover:scale-102"
+                  className="h-13 px-8 rounded-2xl bg-[#4CAF50] border-b-4 border-[#2E7D32] active:translate-y-1 active:border-b-0 text-white font-black text-base shadow-md flex items-center gap-2 cursor-pointer transition-transform shrink-0 hover:scale-102 lowercase"
                 >
-                  <span>LANJUT</span>
-                  <ArrowRight className="w-6 h-6 stroke-[3]" />
+                  <span>{text.nextButton}</span>
+                  <ArrowRight className="w-5 h-5 stroke-[3]" />
                 </button>
               )}
             </motion.div>
